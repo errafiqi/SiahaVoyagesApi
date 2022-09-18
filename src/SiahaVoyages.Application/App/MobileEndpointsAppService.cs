@@ -145,7 +145,7 @@ namespace SiahaVoyages.App
         {
             var userId = _currentUser.Id;
 
-            var driver = await _driverRepository.GetAsync(d => d.UserId == userId, true);
+            var driver = (await _driverRepository.WithDetailsAsync()).FirstOrDefault(d => d.UserId == userId);
 
             return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
