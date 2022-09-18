@@ -19,16 +19,18 @@ namespace SiahaVoyages.App
 
         public async Task<TransferDto> GetAsync(Guid id)
         {
-            var transfer = await _transferRepository.GetAsync(id);
+            var transfer = (await _transferRepository.WithDetailsAsync(t => t.Client, t => t.Client.User, 
+                    t => t.Driver, t => t.Driver.User))
+                    .FirstOrDefault(t => t.Id == id);
             return ObjectMapper.Map<Transfer, TransferDto>(transfer);
         }
 
         public async Task<PagedResultDto<TransferDto>> GetListAsync(GetTransferListDto input)
         {
-            var query = await _transferRepository.GetQueryableAsync();
+            var query = await _transferRepository.WithDetailsAsync(t => t.Client, t => t.Client.User, t => t.Driver, t => t.Driver.User);
 
             var transfers = query
-                .WhereIf(!string.IsNullOrEmpty(input.Filter), t => t.Client != null && t.Client.Name.Contains(input.Filter))
+                .WhereIf(!string.IsNullOrEmpty(input.Filter), t => t.Client != null && t.Client.User.Name.Contains(input.Filter))
                 .Skip(input.SkipCount)
                 .Take(input.MaxResultCount)
                 .OrderBy(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)

@@ -97,7 +97,7 @@ namespace SiahaVoyages.App
 
         public async Task<ListResultDto<TransferDto>> GetCompletedMissionsByDateRange(Guid DriverId, DateTime From, DateTime to)
         {
-            var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Client, t => t.Client.User))
+            var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Driver.User, t => t.Client, t => t.Client.User))
                 .Where(t => t.DriverId == DriverId && t.State == TransferStateEnum.Closed)
                 .Where(t => t.PickupDate.CompareTo(From) >= 0 && t.PickupDate.CompareTo(to) <= 0)
                 .OrderBy(t => t.LastModificationTime)
@@ -110,7 +110,7 @@ namespace SiahaVoyages.App
 
         public async Task<ListResultDto<TransferDto>> GetLastFiveMissions(Guid DriverId)
         {
-            var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Client, t => t.Client.User))
+            var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Driver.User, t => t.Client, t => t.Client.User))
                 .Where(t => t.DriverId == DriverId &&
                                 (t.State == TransferStateEnum.Affected
                                     || t.State == TransferStateEnum.OnGoing

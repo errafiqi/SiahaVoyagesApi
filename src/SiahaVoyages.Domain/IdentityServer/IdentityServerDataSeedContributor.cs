@@ -72,27 +72,27 @@ public class IdentityServerDataSeedContributor : IDataSeedContributor, ITransien
 
     private async Task CreateClientCompaniesAsync()
     {
-        if (await _clientCompanyRepository.CountAsync(cc => cc.Name.Contains("Cocacola")) == 0)
-        {
-            await _clientCompanyRepository.InsertAsync(
-                new App.Client
-                {
-                    Name = "Cocacola"
-                },
-                autoSave: true
-            );
-        }
+        //if (await _clientCompanyRepository.CountAsync(cc => cc.Name.Contains("Cocacola")) == 0)
+        //{
+        //    await _clientCompanyRepository.InsertAsync(
+        //        new App.Client
+        //        {
+        //            Name = "Cocacola"
+        //        },
+        //        autoSave: true
+        //    );
+        //}
 
-        if (await _clientCompanyRepository.CountAsync(cc => cc.Name.Contains("Google")) == 0)
-        {
-            await _clientCompanyRepository.InsertAsync(
-                new App.Client
-                {
-                    Name = "Google"
-                },
-                autoSave: true
-            );
-        }
+        //if (await _clientCompanyRepository.CountAsync(cc => cc.Name.Contains("Google")) == 0)
+        //{
+        //    await _clientCompanyRepository.InsertAsync(
+        //        new App.Client
+        //        {
+        //            Name = "Google"
+        //        },
+        //        autoSave: true
+        //    );
+        //}
     }
 
     private async Task CreateApiScopesAsync()

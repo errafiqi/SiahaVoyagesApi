@@ -13,9 +13,6 @@ namespace SiahaVoyages.App
         public Guid? UserId { get; set; }
         public IdentityUser User { get; set; }
 
-        [Required]
-        public string Name { get; set; }
-
         public string Adresse { get; set; }
 
         public string Email { get; set; }

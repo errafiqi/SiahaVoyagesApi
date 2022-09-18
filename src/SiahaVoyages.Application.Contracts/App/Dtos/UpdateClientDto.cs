@@ -8,8 +8,6 @@ namespace SiahaVoyages.App.Dtos
         public Guid UserId { get; set; }
         public IdentityUserUpdateDto User { get; set; }
 
-        public string Name { get; set; }
-
         public string Adresse { get; set; }
 
         public string Email { get; set; }

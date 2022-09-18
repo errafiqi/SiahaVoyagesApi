@@ -32,13 +32,13 @@ namespace SiahaVoyages.App
 
         public async Task<DriverDto> GetAsync(Guid id)
         {
-            var driver = await _driverRepository.GetAsync(id, true);
+            var driver = (await _driverRepository.WithDetailsAsync(d => d.User)).FirstOrDefault(d => d.Id == id);
             return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
 
         public async Task<PagedResultDto<DriverDto>> GetListAsync(GetDriverListDto input)
         {
-            var query = await _driverRepository.WithDetailsAsync();
+            var query = await _driverRepository.WithDetailsAsync(d => d.User);
 
             var drivers = query.WhereIf(!string.IsNullOrEmpty(input.Filter), d => (d.User.Name + d.User.Surname).Contains(input.Filter)
                                     || (d.User.Surname + d.User.Name).Contains(input.Filter)
