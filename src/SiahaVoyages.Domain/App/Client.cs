@@ -33,7 +33,5 @@ namespace SiahaVoyages.App
         public string RIB { get; set; }
 
         public string Contact { get; set; }
-
-        public byte[] Logo { get; set; }
     }
 }
