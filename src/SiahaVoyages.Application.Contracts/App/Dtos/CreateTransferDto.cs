@@ -32,6 +32,10 @@ namespace SiahaVoyages.App.Dtos
 
         public DateTime PickupDate { get; set; }
 
+        public string PickupPoint { get; set; }
+
+        public float Rate { get; set; }
+
         public string From { get; set; }
 
         public string To { get; set; }

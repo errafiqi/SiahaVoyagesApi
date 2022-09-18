@@ -40,9 +40,11 @@ namespace SiahaVoyages.App
 
         public async Task<TransferDto> RejectMission(Guid MissionId)
         {
-            var mission = await _transferRepository.GetAsync(MissionId);
+            var mission = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Client, t => t.Client.User))
+                .FirstOrDefault(t => t.Id == MissionId);
 
             mission.State = TransferStateEnum.Rejected;
+            mission.Driver.Available = true;
             mission = await _transferRepository.UpdateAsync(mission);
 
             return ObjectMapper.Map<Transfer, TransferDto>(mission);
@@ -50,7 +52,8 @@ namespace SiahaVoyages.App
 
         public async Task<TransferDto> AccepteMission(Guid MissionId)
         {
-            var mission = await _transferRepository.GetAsync(MissionId, true);
+            var mission = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Client, t => t.Client.User))
+                .FirstOrDefault(t => t.Id == MissionId);
 
             mission.State = TransferStateEnum.OnGoing;
             mission.Driver.Available = false;
@@ -61,7 +64,8 @@ namespace SiahaVoyages.App
 
         public async Task<TransferDto> CompleteMission(Guid MissionId)
         {
-            var mission = await _transferRepository.GetAsync(MissionId);
+            var mission = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Client, t => t.Client.User))
+                .FirstOrDefault(t => t.Id == MissionId);
 
             mission.State = TransferStateEnum.Closed;
             mission.Driver.Available = true;
@@ -80,7 +84,7 @@ namespace SiahaVoyages.App
 
         public async Task<ListResultDto<TransferDto>> GetAffectedAndOnGoingMissions(Guid DriverId)
         {
-            var missions = (await _transferRepository.WithDetailsAsync())
+            var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Client, t => t.Client.User))
                 .Where(t => t.DriverId == DriverId && (t.State == TransferStateEnum.Affected || t.State == TransferStateEnum.OnGoing))
                 .OrderBy(t => t.PickupDate)
                 .OrderBy(t => t.LastModificationTime != null ? t.LastModificationTime : t.CreationTime)
@@ -93,7 +97,7 @@ namespace SiahaVoyages.App
 
         public async Task<ListResultDto<TransferDto>> GetCompletedMissionsByDateRange(Guid DriverId, DateTime From, DateTime to)
         {
-            var missions = (await _transferRepository.WithDetailsAsync())
+            var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Client, t => t.Client.User))
                 .Where(t => t.DriverId == DriverId && t.State == TransferStateEnum.Closed)
                 .Where(t => t.PickupDate.CompareTo(From) >= 0 && t.PickupDate.CompareTo(to) <= 0)
                 .OrderBy(t => t.LastModificationTime)
@@ -106,7 +110,7 @@ namespace SiahaVoyages.App
 
         public async Task<ListResultDto<TransferDto>> GetLastFiveMissions(Guid DriverId)
         {
-            var missions = (await _transferRepository.WithDetailsAsync())
+            var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Client, t => t.Client.User))
                 .Where(t => t.DriverId == DriverId &&
                                 (t.State == TransferStateEnum.Affected
                                     || t.State == TransferStateEnum.OnGoing
@@ -127,7 +131,7 @@ namespace SiahaVoyages.App
             var missionsCountsTodayDto = new MissionsCountsTodayDto();
             var today = DateTime.Now.Date;
 
-            var query = (await _transferRepository.GetQueryableAsync()).Where(t => t.DriverId == DriverId && today.Equals(t.PickupDate));
+            var query = (await _transferRepository.WithDetailsAsync()).Where(t => t.DriverId == DriverId && today.Equals(t.PickupDate));
 
             missionsCountsTodayDto.AffectedMissionsCount = query.Count(t => t.State == TransferStateEnum.Affected);
             missionsCountsTodayDto.CompletedMissionsCount = query.Count(t => t.State == TransferStateEnum.Affected);

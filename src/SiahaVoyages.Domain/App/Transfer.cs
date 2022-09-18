@@ -40,6 +40,10 @@ namespace SiahaVoyages.App
 
         public string FlightDetails { get; set; }
 
+        public string PickupPoint { get; set; }
+
+        public float Rate { get; set; }
+
         public float Price { get; set; }
 
         public TransferStateEnum State { get; set; } = TransferStateEnum.Requested;
