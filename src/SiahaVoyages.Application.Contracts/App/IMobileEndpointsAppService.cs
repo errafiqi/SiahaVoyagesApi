@@ -24,7 +24,7 @@ namespace SiahaVoyages.App
 
         public Task<MissionsCountsTodayDto> GetMissionsCountsToday(Guid DriverId);
 
-        public Task<MissionsCountThisWeekPerDayDto> GetMissionsCountThisWeekPerDay(Guid DriverId);
+        public Task<ListResultDto<MissionsCountThisWeekPerDayDto>> GetMissionsCountThisWeekPerDay(Guid DriverId);
 
         public Task<DriverDto> GetCurrentDriver();
 

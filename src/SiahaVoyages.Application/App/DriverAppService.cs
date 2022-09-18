@@ -30,10 +30,22 @@ namespace SiahaVoyages.App
             _roleRepository = roleRepository;
         }
 
-        public async Task<DriverDto> GetAsync(Guid id)
+        public async Task<DriverDto> GetByIdAsync(Guid id)
         {
             var driver = (await _driverRepository.WithDetailsAsync(d => d.User)).FirstOrDefault(d => d.Id == id);
             return ObjectMapper.Map<Driver, DriverDto>(driver);
+        }
+
+        public async Task<ListResultDto<DriverDto>> GetAvailablesAsync()
+        {
+            var drivers = (await _driverRepository.WithDetailsAsync(d => d.User))
+                .Where(d => d.Available)
+                .OrderBy(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
+                .ToList();
+
+            return new ListResultDto<DriverDto>(
+                ObjectMapper.Map<List<Driver>, List<DriverDto>>(drivers)
+            );
         }
 
         public async Task<PagedResultDto<DriverDto>> GetListAsync(GetDriverListDto input)

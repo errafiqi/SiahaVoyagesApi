@@ -140,9 +140,22 @@ namespace SiahaVoyages.App
             return missionsCountsTodayDto;
         }
 
-        public Task<MissionsCountThisWeekPerDayDto> GetMissionsCountThisWeekPerDay(Guid DriverId)
+        public async Task<ListResultDto<MissionsCountThisWeekPerDayDto>> GetMissionsCountThisWeekPerDay(Guid DriverId)
         {
-            throw new NotImplementedException();
+            var today = DateTime.Now.Date;
+            var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Driver.User, t => t.Client, t => t.Client.User))
+                .Where(t => t.DriverId == DriverId &&
+                                (t.State == TransferStateEnum.Affected
+                                    || t.State == TransferStateEnum.OnGoing
+                                    || t.State == TransferStateEnum.Closed
+                                )
+                       )
+                .Where(t => t.PickupDate.Date.CompareTo(today) <= 0 && t.PickupDate.Date.CompareTo(today) > -7)
+                .GroupBy(t => t.PickupDate.DayOfWeek)
+                .Select(t => new MissionsCountThisWeekPerDayDto  { DayOfWeek = t.Key, Count = t.Count()})
+                .ToList();
+
+            return new ListResultDto<MissionsCountThisWeekPerDayDto>(missions);
         }
 
         public async Task<DriverDto> GetCurrentDriverWithDetails()

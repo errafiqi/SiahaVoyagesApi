@@ -6,18 +6,8 @@ namespace SiahaVoyages.App.Dtos
 {
     public class MissionsCountThisWeekPerDayDto
     {
-        public int MondayCount;
+        public DayOfWeek DayOfWeek { get; set; }
 
-        public int TuesdayCount;
-
-        public int WednesdayCount;
-
-        public int TursdayCount;
-
-        public int FridayCount;
-
-        public int SaturdayCount;
-
-        public int SunCount;
+        public int Count { get; set; }
     }
 }

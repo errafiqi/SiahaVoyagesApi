@@ -8,7 +8,9 @@ namespace SiahaVoyages.App
 {
     public interface IDriverAppService : IApplicationService
     {
-        Task<DriverDto> GetAsync(Guid id);
+        Task<DriverDto> GetByIdAsync(Guid id);
+
+        Task<ListResultDto<DriverDto>> GetAvailablesAsync();
 
         Task<PagedResultDto<DriverDto>> GetListAsync(GetDriverListDto input);
 
