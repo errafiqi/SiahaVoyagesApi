@@ -11,10 +11,6 @@ namespace SiahaVoyages.App.Dtos
 
         public string Adresse { get; set; }
 
-        public string Email { get; set; }
-
-        public string PhoneNumber { get; set; }
-
         public string ICE { get; set; }
 
         public string IF { get; set; }

@@ -74,11 +74,9 @@ namespace SiahaVoyages.App
             user.SetPhoneNumber(input.PhoneNumber ?? "", true);
 
             user = await _userRepository.UpdateAsync(user);
-            var client = new Client
-            {
-                User = user,
-                UserId = user.Id
-            };
+            var client = ObjectMapper.Map<CreateClientDto, Client>(input);
+            client.User = user;
+            client.UserId = user.Id;
 
             var insertedClient = await _clientRepository.InsertAsync(client);
 

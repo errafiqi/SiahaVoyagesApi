@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SiahaVoyages.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SiahaVoyages.Migrations
 {
     [DbContext(typeof(SiahaVoyagesDbContext))]
-    partial class SiahaVoyagesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220918221947_alter_Client_remove_Email_and_Tel")]
+    partial class alter_Client_remove_Email_and_Tel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -84,7 +84,7 @@ namespace SiahaVoyages.App
 
         public async Task<ListResultDto<TransferDto>> GetAffectedAndOnGoingMissions(Guid DriverId)
         {
-            var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Client, t => t.Client.User))
+            var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Driver.User, t => t.Client, t => t.Client.User))
                 .Where(t => t.DriverId == DriverId && (t.State == TransferStateEnum.Affected || t.State == TransferStateEnum.OnGoing))
                 .OrderBy(t => t.PickupDate)
                 .OrderBy(t => t.LastModificationTime != null ? t.LastModificationTime : t.CreationTime)
@@ -131,11 +131,11 @@ namespace SiahaVoyages.App
             var missionsCountsTodayDto = new MissionsCountsTodayDto();
             var today = DateTime.Now.Date;
 
-            var query = (await _transferRepository.WithDetailsAsync()).Where(t => t.DriverId == DriverId && today.Equals(t.PickupDate));
+            var query = (await _transferRepository.WithDetailsAsync()).Where(t => t.DriverId == DriverId && today.Equals(t.PickupDate.Date));
 
             missionsCountsTodayDto.AffectedMissionsCount = query.Count(t => t.State == TransferStateEnum.Affected);
-            missionsCountsTodayDto.CompletedMissionsCount = query.Count(t => t.State == TransferStateEnum.Affected);
-            missionsCountsTodayDto.InProgressMissionsCount = query.Count(t => t.State == TransferStateEnum.Affected);
+            missionsCountsTodayDto.CompletedMissionsCount = query.Count(t => t.State == TransferStateEnum.Closed);
+            missionsCountsTodayDto.InProgressMissionsCount = query.Count(t => t.State == TransferStateEnum.OnGoing);
 
             return missionsCountsTodayDto;
         }
