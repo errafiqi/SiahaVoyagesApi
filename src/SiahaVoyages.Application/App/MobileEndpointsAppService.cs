@@ -141,11 +141,21 @@ namespace SiahaVoyages.App
             throw new NotImplementedException();
         }
 
+        public async Task<DriverDto> GetCurrentDriverWithDetails()
+        {
+            var userId = _currentUser.Id;
+
+            var driver = (await _driverRepository.WithDetailsAsync(d => d.User)).FirstOrDefault(d => d.UserId == userId);
+
+            return ObjectMapper.Map<Driver, DriverDto>(driver);
+        }
+
         public async Task<DriverDto> GetCurrentDriver()
         {
             var userId = _currentUser.Id;
 
-            var driver = (await _driverRepository.WithDetailsAsync()).FirstOrDefault(d => d.UserId == userId);
+            var driver = await _driverRepository.GetAsync(d => d.UserId == userId);
+            driver.User = await _userRepository.GetAsync(u => u.Id == userId);
 
             return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
