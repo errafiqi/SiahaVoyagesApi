@@ -9,6 +9,14 @@ namespace SiahaVoyages.App.Dtos
         public Guid UserId { get; set; }
         public IdentityUserDto User { get; set; }
 
+        public string FullName
+        {
+            get 
+            {
+                return User != null ? User.Name + " " + User.Surname : "";
+            }
+        }
+
         public string Adresse { get; set; }
 
         public string ICE { get; set; }

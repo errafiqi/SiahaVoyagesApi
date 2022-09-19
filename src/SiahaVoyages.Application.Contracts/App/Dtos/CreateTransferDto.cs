@@ -14,13 +14,17 @@ namespace SiahaVoyages.App.Dtos
         {
             get 
             {
-                string names = "";
-                foreach (var name in PassengersNames)
+                if (PassengersNames != null)
                 {
-                    names += name + ";";
-                    names = name.Trim(';');
+                    string names = "";
+                    foreach (var name in PassengersNames)
+                    {
+                        names += name + ";";
+                        names = name.Trim(';');
+                    }
+                    return names;
                 }
-                return names;
+                return "";
             }
         }
 

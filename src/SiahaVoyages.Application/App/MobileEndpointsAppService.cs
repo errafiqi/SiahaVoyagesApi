@@ -62,12 +62,13 @@ namespace SiahaVoyages.App
             return ObjectMapper.Map<Transfer, TransferDto>(mission);
         }
 
-        public async Task<TransferDto> CompleteMission(Guid MissionId)
+        public async Task<TransferDto> CompleteMission(Guid MissionId, string PickupPoint, string DriverReview)
         {
             var mission = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Client, t => t.Client.User))
                 .FirstOrDefault(t => t.Id == MissionId);
 
             mission.State = TransferStateEnum.Closed;
+            mission.PickupPoint = PickupPoint;
             mission.Driver.Available = true;
             mission = await _transferRepository.UpdateAsync(mission);
 
