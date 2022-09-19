@@ -11,6 +11,7 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Identity;
+using Volo.Abp.ObjectMapping;
 using Volo.Abp.Users;
 
 namespace SiahaVoyages.App
@@ -195,7 +196,7 @@ namespace SiahaVoyages.App
             return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
 
-        public async Task EditPassword(string newPassword)
+        public async Task<DriverDto> EditPassword(string newPassword)
         {
             var userId = _currentUser.Id.Value;
             var user = (await _userRepository.WithDetailsAsync()).FirstOrDefault(u => u.Id == userId);
@@ -203,6 +204,9 @@ namespace SiahaVoyages.App
             var resetToken = await UserManager.GeneratePasswordResetTokenAsync(user);
 
             await UserManager.ResetPasswordAsync(user, resetToken, newPassword);
+
+            var driver = await _driverRepository.GetAsync(d => d.UserId == userId);
+            return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
     }
 }

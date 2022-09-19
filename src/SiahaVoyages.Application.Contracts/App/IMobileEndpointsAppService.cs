@@ -31,6 +31,6 @@ namespace SiahaVoyages.App
 
         public Task<DriverDto> GetCurrentDriverWithDetails();
 
-        public Task EditPassword(string newPassword);
+        public Task<DriverDto> EditPassword(string newPassword);
     }
 }
