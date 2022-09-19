@@ -12,7 +12,7 @@ namespace SiahaVoyages.App
 
         public Task<TransferDto> AccepteMission(Guid MissionId);
 
-        public Task<TransferDto> CompleteMission(Guid MissionId, string DeliveryPoint, string DriverReview);
+        public Task<TransferDto> CompleteMission(Guid MissionId, string DeliveryPoint, string DriverReview, DateTime DeliveryDate);
 
         public Task<DriverDto> EditProfileInfos(UpdateDriverDto DriverInfos);
 
