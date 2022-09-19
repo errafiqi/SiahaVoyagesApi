@@ -10,5 +10,7 @@ namespace SiahaVoyages.App.Dtos
         public IdentityUserUpdateDto User { get; set; }
 
         public bool Available { get; set; }
+
+        public string ProfilePicture { get; set; }
     }
 }

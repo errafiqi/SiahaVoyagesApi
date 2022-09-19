@@ -77,10 +77,21 @@ namespace SiahaVoyages.App
             return ObjectMapper.Map<Transfer, TransferDto>(mission);
         }
 
-        public async Task<DriverDto> EditProfileInfos(UpdateDriverDto DriverInfos)
+        public async Task<DriverDto> EditProfileInfos(Guid DriverId, string Username, string Name, string Surname, string Email, string PhoneNumber, string ProfilePicture)
         {
-            var driver = ObjectMapper.Map<UpdateDriverDto, Driver>(DriverInfos);
+            var driver = await _driverRepository.GetAsync(d => d.Id == DriverId);
+
+            driver = (await _driverRepository.WithDetailsAsync(d => d.User))
+                .FirstOrDefault(d => d.Id == DriverId);
+
+            driver.User.Name = Name;
+            driver.User.Surname = Surname;
+            driver.User.SetPhoneNumber(PhoneNumber ?? "", true);
             driver = await _driverRepository.UpdateAsync(driver);
+
+            var user = await _userRepository.GetAsync(u => u.Id == driver.UserId);
+            var changeEmailToken = await UserManager.GenerateChangeEmailTokenAsync(user, Email);
+            await UserManager.ChangeEmailAsync(user, Email, changeEmailToken);
 
             return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
@@ -104,8 +115,8 @@ namespace SiahaVoyages.App
         {
             var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Driver.User, t => t.Client, t => t.Client.User))
                 .Where(t => t.DriverId == DriverId && t.State != TransferStateEnum.Requested)
-                .WhereIf(From != null, t => t.PickupDate.CompareTo(From) >= 0)
-                .WhereIf(to != null, t => t.PickupDate.CompareTo(to) <= 0)
+                .WhereIf(From != null, t => t.PickupDate.Date.CompareTo(From.Value.Date) >= 0)
+                .WhereIf(to != null, t => t.PickupDate.Date.CompareTo(to.Value.Date) <= 0)
                 .OrderByDescending(t => t.PickupDate)
                 .OrderByDescending(t => t.LastModificationTime)
                 .ToList();

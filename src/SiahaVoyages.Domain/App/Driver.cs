@@ -14,5 +14,7 @@ namespace SiahaVoyages.App
         public IdentityUser User { get; set; }
 
         public bool Available { get; set; } = true;
+
+        public string ProfilePicture { get; set; }
     }
 }

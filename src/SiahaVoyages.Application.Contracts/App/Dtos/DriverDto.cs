@@ -18,5 +18,7 @@ namespace SiahaVoyages.App.Dtos
         }
 
         public bool Available { get; set; }
+
+        public string ProfilePicture { get; set; }
     }
 }

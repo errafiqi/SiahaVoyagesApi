@@ -18,5 +18,7 @@ namespace SiahaVoyages.App.Dtos
         public string PhoneNumber { get; set; }
 
         public bool Available { get; set; }
+
+        public string ProfilePicture { get; set; }
     }
 }
