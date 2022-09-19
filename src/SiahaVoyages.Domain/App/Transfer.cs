@@ -55,7 +55,7 @@ namespace SiahaVoyages.App
         public TransferStateEnum State { get; set; } = TransferStateEnum.Requested;
 
         [ForeignKey("DriverId")]
-        public Guid DriverId { get; set; }
+        public Guid? DriverId { get; set; }
         public Driver Driver { get; set; }
     }
 }

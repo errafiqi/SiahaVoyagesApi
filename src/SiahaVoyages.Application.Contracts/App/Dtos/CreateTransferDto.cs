@@ -58,6 +58,6 @@ namespace SiahaVoyages.App.Dtos
 
         public TransferStateEnum State { get; set; }
 
-        public Guid DriverId { get; set; }
+        public Guid? DriverId { get; set; }
     }
 }
