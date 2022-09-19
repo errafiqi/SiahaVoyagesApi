@@ -18,7 +18,7 @@ namespace SiahaVoyages.App
 
         public Task<ListResultDto<TransferDto>> GetAffectedAndOnGoingMissions(Guid DriverId);
 
-        public Task<ListResultDto<TransferDto>> GetCompletedMissionsByDateRange(Guid DriverId, DateTime From, DateTime to);
+        public Task<ListResultDto<TransferDto>> GetCompletedMissionsByDateRange(Guid DriverId, DateTime? From, DateTime? to);
 
         public Task<ListResultDto<TransferDto>> GetLastFiveMissions(Guid DriverId);
 

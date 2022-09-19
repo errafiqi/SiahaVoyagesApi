@@ -40,7 +40,7 @@ namespace SiahaVoyages.App
         {
             var drivers = (await _driverRepository.WithDetailsAsync(d => d.User))
                 .Where(d => d.Available)
-                .OrderBy(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
+                .OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
                 .ToList();
 
             return new ListResultDto<DriverDto>(
@@ -57,7 +57,7 @@ namespace SiahaVoyages.App
                                     || d.User.Surname.Contains(input.Filter))
                 .Skip(input.SkipCount)
                 .Take(input.MaxResultCount)
-                .OrderBy(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
+                .OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
                 .ToList();
 
             var totalCount = drivers.Any() ? drivers.Count() : 0;

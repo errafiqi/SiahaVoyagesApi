@@ -44,7 +44,7 @@ namespace SiahaVoyages.App
             var clients = query.WhereIf(!string.IsNullOrEmpty(input.Filter), c => c.User.Name.Contains(input.Filter))
                 .Skip(input.SkipCount)
                 .Take(input.MaxResultCount)
-                .OrderBy(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
+                .OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
                 .ToList();
 
             var totalCount = clients.Any() ? clients.Count() : 0;

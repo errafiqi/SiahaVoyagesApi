@@ -33,7 +33,7 @@ namespace SiahaVoyages.App
                 .WhereIf(!string.IsNullOrEmpty(input.Filter), t => t.Client != null && t.Client.User.Name.Contains(input.Filter))
                 .Skip(input.SkipCount)
                 .Take(input.MaxResultCount)
-                .OrderBy(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
+                .OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
                 .ToList();
 
             var totalCount = transfers.Any() ? transfers.Count() : 0;

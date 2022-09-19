@@ -29,7 +29,7 @@ namespace SiahaVoyages.App
 
             var vouchers = query.Skip(input.SkipCount)
                 .Take(input.MaxResultCount)
-                .OrderBy(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
+                .OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
                 .ToList();
 
             var totalCount = vouchers.Any() ? vouchers.Count() : 0;

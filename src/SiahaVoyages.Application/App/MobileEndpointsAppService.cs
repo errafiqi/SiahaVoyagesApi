@@ -91,8 +91,8 @@ namespace SiahaVoyages.App
                 .Where(t => t.DriverId == DriverId && (t.State == TransferStateEnum.Affected
                                                        || t.State == TransferStateEnum.OnGoing
                                                        || t.State == TransferStateEnum.Closed))
-                .OrderBy(t => t.PickupDate)
-                .OrderBy(t => t.LastModificationTime != null ? t.LastModificationTime : t.CreationTime)
+                .OrderByDescending(t => t.PickupDate)
+                .OrderByDescending(t => t.LastModificationTime != null ? t.LastModificationTime : t.CreationTime)
                 .ToList();
 
             var result = ObjectMapper.Map<List<Transfer>, List<TransferDto>>(missions);
@@ -100,12 +100,14 @@ namespace SiahaVoyages.App
             return new ListResultDto<TransferDto>(result);
         }
 
-        public async Task<ListResultDto<TransferDto>> GetCompletedMissionsByDateRange(Guid DriverId, DateTime From, DateTime to)
+        public async Task<ListResultDto<TransferDto>> GetCompletedMissionsByDateRange(Guid DriverId, DateTime? From, DateTime? to)
         {
             var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Driver.User, t => t.Client, t => t.Client.User))
-                .Where(t => t.DriverId == DriverId && t.State == TransferStateEnum.Closed)
-                .Where(t => t.PickupDate.CompareTo(From) >= 0 && t.PickupDate.CompareTo(to) <= 0)
-                .OrderBy(t => t.LastModificationTime)
+                .Where(t => t.DriverId == DriverId && t.State != TransferStateEnum.Requested)
+                .WhereIf(From != null, t => t.PickupDate.CompareTo(From) >= 0)
+                .WhereIf(to != null, t => t.PickupDate.CompareTo(to) <= 0)
+                .OrderByDescending(t => t.PickupDate)
+                .OrderByDescending(t => t.LastModificationTime)
                 .ToList();
 
             var result = ObjectMapper.Map<List<Transfer>, List<TransferDto>>(missions);
@@ -122,7 +124,7 @@ namespace SiahaVoyages.App
                                     || t.State == TransferStateEnum.Closed
                                 )
                        )
-                .OrderBy(t => t.LastModificationTime != null ? t.LastModificationTime : t.CreationTime)
+                .OrderByDescending(t => t.LastModificationTime != null ? t.LastModificationTime : t.CreationTime)
                 .Take(5)
                 .ToList();
 

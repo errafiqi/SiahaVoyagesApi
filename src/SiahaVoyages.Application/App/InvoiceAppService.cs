@@ -29,7 +29,7 @@ namespace SiahaVoyages.App
 
             var invoices = query.Skip(input.SkipCount)
                 .Take(input.MaxResultCount)
-                .OrderBy(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
+                .OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
                 .ToList();
 
             var totalCount = invoices.Any() ? invoices.Count() : 0;
