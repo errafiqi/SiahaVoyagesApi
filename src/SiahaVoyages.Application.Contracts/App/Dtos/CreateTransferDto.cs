@@ -38,6 +38,10 @@ namespace SiahaVoyages.App.Dtos
 
         public string PickupPoint { get; set; }
 
+        public string DeliveryPoint { get; set; }
+
+        public string DriverReview { get; set; }
+
         public float Rate { get; set; }
 
         public string From { get; set; }

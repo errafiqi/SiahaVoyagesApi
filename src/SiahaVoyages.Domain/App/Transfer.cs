@@ -42,6 +42,10 @@ namespace SiahaVoyages.App
 
         public string PickupPoint { get; set; }
 
+        public string DeliveryPoint { get; set; }
+
+        public string DriverReview { get; set; }
+
         public float Rate { get; set; }
 
         public float Price { get; set; }
