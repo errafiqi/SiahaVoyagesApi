@@ -85,7 +85,9 @@ namespace SiahaVoyages.App
         public async Task<ListResultDto<TransferDto>> GetAffectedAndOnGoingMissions(Guid DriverId)
         {
             var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Driver.User, t => t.Client, t => t.Client.User))
-                .Where(t => t.DriverId == DriverId && (t.State == TransferStateEnum.Affected || t.State == TransferStateEnum.OnGoing))
+                .Where(t => t.DriverId == DriverId && (t.State == TransferStateEnum.Affected
+                                                       || t.State == TransferStateEnum.OnGoing
+                                                       || t.State == TransferStateEnum.Closed))
                 .OrderBy(t => t.PickupDate)
                 .OrderBy(t => t.LastModificationTime != null ? t.LastModificationTime : t.CreationTime)
                 .ToList();
