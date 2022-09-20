@@ -15,7 +15,7 @@ namespace SiahaVoyages.App
 
         public Task<TransferDto> CompleteMission(Guid MissionId, string DeliveryPoint, string DriverReview, DateTime DeliveryDate);
 
-        public Task<DriverDto> EditProfileInfos(Guid DriverId, string Username, string Name, string Surname, string Email, string PhoneNumber, string ProfilePicture);
+        public Task<DriverDto> EditProfileInfos(EditProfileInfosDto infos);
 
         public Task<ListResultDto<TransferDto>> GetAffectedAndOnGoingMissions(Guid DriverId);
 

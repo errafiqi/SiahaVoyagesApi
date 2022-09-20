@@ -80,21 +80,22 @@ namespace SiahaVoyages.App
             return ObjectMapper.Map<Transfer, TransferDto>(mission);
         }
 
-        public async Task<DriverDto> EditProfileInfos(Guid DriverId, string Username, string Name, string Surname, string Email, string PhoneNumber, string ProfilePicture)
+        public async Task<DriverDto> EditProfileInfos(EditProfileInfosDto infos)
         {
-            var driver = await _driverRepository.GetAsync(d => d.Id == DriverId);
+            var driver = await _driverRepository.GetAsync(d => d.Id == infos.DriverId);
 
             driver = (await _driverRepository.WithDetailsAsync(d => d.User))
-                .FirstOrDefault(d => d.Id == DriverId);
+                .FirstOrDefault(d => d.Id == infos.DriverId);
 
-            driver.User.Name = Name;
-            driver.User.Surname = Surname;
-            driver.User.SetPhoneNumber(PhoneNumber ?? "", true);
+            driver.User.Name = infos.Name;
+            driver.User.Surname = infos.Surname;
+            driver.User.SetPhoneNumber(infos.PhoneNumber ?? "", true);
+            driver.ProfilePicture = infos.ProfilePicture;
             driver = await _driverRepository.UpdateAsync(driver);
 
             var user = await _userRepository.GetAsync(u => u.Id == driver.UserId);
-            var changeEmailToken = await UserManager.GenerateChangeEmailTokenAsync(user, Email);
-            await UserManager.ChangeEmailAsync(user, Email, changeEmailToken);
+            var changeEmailToken = await UserManager.GenerateChangeEmailTokenAsync(user, infos.Email);
+            await UserManager.ChangeEmailAsync(user, infos.Email, changeEmailToken);
 
             return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
