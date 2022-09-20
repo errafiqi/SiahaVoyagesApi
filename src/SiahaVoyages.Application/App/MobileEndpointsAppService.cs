@@ -1,4 +1,5 @@
-﻿using Nito.AsyncEx;
+﻿using Microsoft.AspNetCore.Identity;
+using Nito.AsyncEx;
 using SiahaVoyages.App.Dtos;
 using SiahaVoyages.App.Enums;
 using System;
@@ -96,6 +97,10 @@ namespace SiahaVoyages.App
             var user = await _userRepository.GetAsync(u => u.Id == driver.UserId);
             var changeEmailToken = await UserManager.GenerateChangeEmailTokenAsync(user, infos.Email);
             await UserManager.ChangeEmailAsync(user, infos.Email, changeEmailToken);
+            await UserManager.ConfirmEmailAsync(changeEmailToken);
+            user.Username = infos.Username;
+            user.Email = infos.Email;
+            await UserManager.UpdateAsync(user);
 
             return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
