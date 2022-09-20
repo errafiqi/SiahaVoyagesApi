@@ -31,12 +31,14 @@ namespace SiahaVoyages.App
         public MobileEndpointsAppService(IRepository<Driver, Guid> driverRepository,
             IRepository<Transfer, Guid> transferRepository,
             ICurrentUser currentUser,
-            IRepository<IdentityUser, Guid> userRepository)
+            IRepository<IdentityUser, Guid> userRepository,
+            IdentityUserManager userManager)
         {
             _driverRepository = driverRepository;
             _transferRepository = transferRepository;
             _currentUser = currentUser;
             _userRepository = userRepository;
+            UserManager = userManager;
         }
 
         public async Task<TransferDto> RejectMission(Guid MissionId)
@@ -162,17 +164,17 @@ namespace SiahaVoyages.App
         public async Task<ListResultDto<MissionsCountThisWeekPerDayDto>> GetMissionsCountThisWeekPerDay(Guid DriverId)
         {
             var today = DateTime.Now.Date;
-            var missions = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Driver.User, t => t.Client, t => t.Client.User))
+            var list = (await _transferRepository.WithDetailsAsync(t => t.Driver, t => t.Driver.User, t => t.Client, t => t.Client.User))
                 .Where(t => t.DriverId == DriverId &&
                                 (t.State == TransferStateEnum.Affected
                                     || t.State == TransferStateEnum.OnGoing
                                     || t.State == TransferStateEnum.Closed
                                 )
                        )
-                .Where(t => t.PickupDate.Date.CompareTo(today) <= 0 && t.PickupDate.Date.CompareTo(today) > -7)
-                .GroupBy(t => t.PickupDate.DayOfWeek)
-                .Select(t => new MissionsCountThisWeekPerDayDto  { DayOfWeek = t.Key, Count = t.Count()})
-                .ToList();
+                .Where(t => t.PickupDate.Date.CompareTo(today) <= 0 && t.PickupDate.Date.CompareTo(today) > -7).ToList();
+            var groupedList = list.GroupBy(t => t.PickupDate.DayOfWeek)
+                .Select(t => new MissionsCountThisWeekPerDayDto { DayOfWeek = t.Key, Count = t.Count() });
+            var missions = groupedList.ToList();
 
             return new ListResultDto<MissionsCountThisWeekPerDayDto>(missions);
         }
@@ -196,7 +198,7 @@ namespace SiahaVoyages.App
             return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
 
-        public async Task<DriverDto> EditPassword(string newPassword)
+        public async Task<DriverDto> EditDriverPassword(Guid driverId, string newPassword)
         {
             var userId = _currentUser.Id.Value;
             var user = (await _userRepository.WithDetailsAsync()).FirstOrDefault(u => u.Id == userId);
