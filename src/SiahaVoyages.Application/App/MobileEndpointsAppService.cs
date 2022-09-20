@@ -207,7 +207,7 @@ namespace SiahaVoyages.App
 
             await UserManager.ResetPasswordAsync(user, resetToken, newPassword);
 
-            var driver = await _driverRepository.GetAsync(d => d.UserId == userId);
+            var driver = await _driverRepository.GetAsync(d => d.Id == driverId);
             return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
     }
