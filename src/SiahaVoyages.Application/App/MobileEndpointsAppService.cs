@@ -128,7 +128,6 @@ namespace SiahaVoyages.App
                 .WhereIf(From != null, t => t.PickupDate.Date.CompareTo(From.Value.Date) >= 0)
                 .WhereIf(to != null, t => t.PickupDate.Date.CompareTo(to.Value.Date) <= 0)
                 .OrderByDescending(t => t.PickupDate)
-                .OrderByDescending(t => t.LastModificationTime)
                 .ToList();
 
             var result = ObjectMapper.Map<List<Transfer>, List<TransferDto>>(missions);
