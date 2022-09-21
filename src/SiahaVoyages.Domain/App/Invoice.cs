@@ -11,6 +11,10 @@ namespace SiahaVoyages.App
         public Guid TransferId { get; set; }
         public Transfer Transfer { get; set; }
 
+        public DateTime Date { get; set; }
+
+        public string Reference { get; set; }
+
         public byte[] File { get; set; }
     }
 }

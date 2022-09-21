@@ -30,5 +30,7 @@ namespace SiahaVoyages.App.Dtos
         public string RIB { get; set; }
 
         public string Contact { get; set; }
+
+        public string Logo { get; set; }
     }
 }

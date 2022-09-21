@@ -7,6 +7,7 @@ using Volo.Abp.Account;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Identity;
+using Volo.Abp.IdentityServer.Clients;
 using Volo.Abp.Users;
 
 namespace SiahaVoyages.App
@@ -19,18 +20,25 @@ namespace SiahaVoyages.App
 
         IRepository<IdentityUser, Guid> _userRepository;
 
+        ICurrentUser _currentUser;
+
+        IdentityUserManager UserManager { get; }
+
         IRepository<IdentityRole, Guid> _roleRepository;
 
         public DriverAppService(IRepository<Driver, Guid> driverRepository, IAccountAppService accountAppService,
-            IRepository<IdentityUser, Guid> userRepository, IRepository<IdentityRole, Guid> roleRepository)
+            IRepository<IdentityUser, Guid> userRepository, IRepository<IdentityRole, Guid> roleRepository,
+            IdentityUserManager userManager, ICurrentUser currentUser)
         {
             _driverRepository = driverRepository;
             _accountAppService = accountAppService;
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            UserManager = userManager;
+            _currentUser = currentUser;
         }
 
-        public async Task<DriverDto> GetByIdAsync(Guid id)
+        public async Task<DriverDto> GetAsync(Guid id)
         {
             var driver = (await _driverRepository.WithDetailsAsync(d => d.User)).FirstOrDefault(d => d.Id == id);
             return ObjectMapper.Map<Driver, DriverDto>(driver);
@@ -39,8 +47,7 @@ namespace SiahaVoyages.App
         public async Task<ListResultDto<DriverDto>> GetAvailablesAsync()
         {
             var drivers = (await _driverRepository.WithDetailsAsync(d => d.User))
-                .Where(d => d.Available)
-                .OrderByDescending(d => d.LastModificationTime != null ? d.LastModificationTime : d.CreationTime)
+                .OrderByDescending(d => d.Available)
                 .ToList();
 
             return new ListResultDto<DriverDto>(
@@ -99,18 +106,51 @@ namespace SiahaVoyages.App
             return ObjectMapper.Map<Driver, DriverDto>(insertedDriver);
         }
 
-        public async Task<DriverDto> UpdateAsync(UpdateDriverDto input)
+        public async Task<DriverDto> UpdateAsync(Guid DriverId, UpdateDriverDto input)
         {
-            var driver = ObjectMapper.Map<UpdateDriverDto, Driver>(input);
+            var driver = (await _driverRepository.WithDetailsAsync(d => d.User))
+                .FirstOrDefault(d => d.Id == DriverId);
 
-            var updatedDriver = await _driverRepository.UpdateAsync(driver);
+            driver.User.Name = input.Name;
+            driver.User.Surname = input.Surname;
+            driver.User.SetPhoneNumber(input.PhoneNumber ?? "", true);
+            driver.ProfilePicture = input.ProfilePicture;
+            driver = await _driverRepository.UpdateAsync(driver);
 
-            return ObjectMapper.Map<Driver, DriverDto>(updatedDriver);
+            var user = await _userRepository.GetAsync(u => u.Id == driver.UserId);
+
+            var changeEmailToken = await UserManager.GenerateChangeEmailTokenAsync(user, input.Email);
+
+            await UserManager.ChangeEmailAsync(user, input.Email, changeEmailToken);
+            await UserManager.ConfirmEmailAsync(user, changeEmailToken);
+            await UserManager.SetEmailAsync(user, input.Email);
+
+            await UserManager.SetUserNameAsync(user, input.UserName);
+            if (!string.IsNullOrEmpty(input.Password))
+            {
+                await EditPassword(DriverId, input.Password);
+            }
+
+            return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
 
         public async Task DeleteAsync(Guid id)
         {
             await _driverRepository.DeleteAsync(id);
+        }
+
+        public async Task<DriverDto> EditPassword(Guid driverId, string newPassword)
+        {
+            var userId = _currentUser.Id.Value;
+            var user = (await _userRepository.WithDetailsAsync()).FirstOrDefault(u => u.Id == userId);
+
+            var resetToken = await UserManager.GeneratePasswordResetTokenAsync(user);
+
+            await UserManager.ResetPasswordAsync(user, resetToken, newPassword);
+
+            var driver = await _driverRepository.GetAsync(d => d.Id == driverId);
+
+            return ObjectMapper.Map<Driver, DriverDto>(driver);
         }
     }
 }

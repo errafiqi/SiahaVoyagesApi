@@ -12,10 +12,14 @@ namespace SiahaVoyages.App
 
         Task<PagedResultDto<TransferDto>> GetListAsync(GetTransferListDto input);
 
+        Task<PagedResultDto<TransferDto>> GetListHistoriqueAsync(Guid userId, GetTransferListDto input);
+
         Task<TransferDto> CreateAsync(CreateTransferDto input);
 
-        Task<TransferDto> UpdateAsync(UpdateTransferDto input);
+        Task<TransferDto> UpdateAsync(Guid TransferId, UpdateTransferDto input);
 
-        Task DeleteAsync(Guid id);
+        Task<TransferDto> DeleteAsync(Guid id);
+
+        Task<TransferDto> CancelAsync(Guid id);
     }
 }

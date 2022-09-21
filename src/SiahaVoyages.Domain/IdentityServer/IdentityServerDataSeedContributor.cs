@@ -9,6 +9,7 @@ using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Guids;
+using Volo.Abp.Identity;
 using Volo.Abp.IdentityServer.ApiResources;
 using Volo.Abp.IdentityServer.ApiScopes;
 using Volo.Abp.IdentityServer.Clients;
@@ -32,8 +33,8 @@ public class IdentityServerDataSeedContributor : IDataSeedContributor, ITransien
     private readonly IPermissionDataSeeder _permissionDataSeeder;
     private readonly IConfiguration _configuration;
     private readonly ICurrentTenant _currentTenant;
-
-    private readonly IRepository<App.Client, Guid> _clientCompanyRepository;
+    private readonly IRepository<IdentityRole, Guid> _roleRepository;
+    private readonly IdentityRoleManager RoleManager;
 
     public IdentityServerDataSeedContributor(
         IClientRepository clientRepository,
@@ -44,7 +45,8 @@ public class IdentityServerDataSeedContributor : IDataSeedContributor, ITransien
         IPermissionDataSeeder permissionDataSeeder,
         IConfiguration configuration,
         ICurrentTenant currentTenant,
-        IRepository<App.Client, Guid> clientCompanyRepository)
+        IRepository<IdentityRole, Guid> roleRepository,
+        IdentityRoleManager roleManager)
     {
         _clientRepository = clientRepository;
         _apiResourceRepository = apiResourceRepository;
@@ -54,7 +56,8 @@ public class IdentityServerDataSeedContributor : IDataSeedContributor, ITransien
         _permissionDataSeeder = permissionDataSeeder;
         _configuration = configuration;
         _currentTenant = currentTenant;
-        _clientCompanyRepository = clientCompanyRepository;
+        _roleRepository = roleRepository;
+        RoleManager = roleManager;
     }
 
     [UnitOfWork]
@@ -66,33 +69,39 @@ public class IdentityServerDataSeedContributor : IDataSeedContributor, ITransien
             await CreateApiResourcesAsync();
             await CreateApiScopesAsync();
             await CreateClientsAsync();
-            await CreateClientCompaniesAsync();
+            await CreateRoles();
         }
     }
 
-    private async Task CreateClientCompaniesAsync()
+    private async Task CreateRoles()
     {
-        //if (await _clientCompanyRepository.CountAsync(cc => cc.Name.Contains("Cocacola")) == 0)
-        //{
-        //    await _clientCompanyRepository.InsertAsync(
-        //        new App.Client
-        //        {
-        //            Name = "Cocacola"
-        //        },
-        //        autoSave: true
-        //    );
-        //}
-
-        //if (await _clientCompanyRepository.CountAsync(cc => cc.Name.Contains("Google")) == 0)
-        //{
-        //    await _clientCompanyRepository.InsertAsync(
-        //        new App.Client
-        //        {
-        //            Name = "Google"
-        //        },
-        //        autoSave: true
-        //    );
-        //}
+        if (await _roleRepository.CountAsync(r => r.Name.Equals("driver")) == 0)
+        {
+            var role = new IdentityRole(_guidGenerator.Create(), "driver", null)
+            {
+                IsDefault = false,
+                IsPublic = false
+            };
+            await RoleManager.CreateAsync(role);
+        }
+        if (await _roleRepository.CountAsync(r => r.Name.Equals("office")) == 0)
+        {
+            var role = new IdentityRole(_guidGenerator.Create(), "office", null)
+            {
+                IsDefault = false,
+                IsPublic = false
+            };
+            await RoleManager.CreateAsync(role);
+        }
+        if (await _roleRepository.CountAsync(r => r.Name.Equals("client")) == 0)
+        {
+            var role = new IdentityRole(_guidGenerator.Create(), "client", null)
+            {
+                IsDefault = false,
+                IsPublic = false
+            };
+            await RoleManager.CreateAsync(role);
+        }
     }
 
     private async Task CreateApiScopesAsync()

@@ -25,7 +25,7 @@ namespace SiahaVoyages.App
 
         public async Task<PagedResultDto<InvoiceDto>> GetListAsync(PagedAndSortedResultRequestDto input)
         {
-            var query = await _invoiceRepository.GetQueryableAsync();
+            var query = (await _invoiceRepository.WithDetailsAsync(i => i.Transfer));
 
             var invoices = query.Skip(input.SkipCount)
                 .Take(input.MaxResultCount)
@@ -42,7 +42,14 @@ namespace SiahaVoyages.App
 
         public async Task<InvoiceDto> CreateAsync(CreateInvoiceDto input)
         {
-            var invoice = ObjectMapper.Map<CreateInvoiceDto, Invoice>(input);
+            var invoice = (await _invoiceRepository.GetQueryableAsync())
+                .Where(i => i.TransferId == input.TransferId)
+                .FirstOrDefault();
+            if (invoice != null)
+            {
+                await _invoiceRepository.DeleteAsync(invoice.Id);
+            }
+            invoice = ObjectMapper.Map<CreateInvoiceDto, Invoice>(input);
 
             var insertedInvoice = await _invoiceRepository.InsertAsync(invoice);
 

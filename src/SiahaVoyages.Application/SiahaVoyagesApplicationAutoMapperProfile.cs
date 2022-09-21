@@ -30,5 +30,9 @@ public class SiahaVoyagesApplicationAutoMapperProfile : Profile
         CreateMap<Voucher, VoucherDto>();
         CreateMap<CreateVoucherDto, Voucher>();
         CreateMap<UpdateVoucherDto, Voucher>();
+
+        CreateMap<Invoice, InvoiceDto>();
+        CreateMap<CreateInvoiceDto, Invoice>();
+        CreateMap<UpdateInvoiceDto, Invoice>();
     }
 }

@@ -14,8 +14,12 @@ namespace SiahaVoyages.App
 
         Task<ClientDto> CreateAsync(CreateClientDto input);
 
-        Task<ClientDto> UpdateAsync(UpdateClientDto input);
+        Task<ClientDto> UpdateAsync(Guid ClientId, UpdateClientDto input);
 
         Task DeleteAsync(Guid id);
+
+        Task<ClientDto> EditPassword(Guid clientId, string newPassword);
+
+        Task ChangeLogo(ChangeLogoDto input);
     }
 }

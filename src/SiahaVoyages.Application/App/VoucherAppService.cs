@@ -25,7 +25,7 @@ namespace SiahaVoyages.App
 
         public async Task<PagedResultDto<VoucherDto>> GetListAsync(PagedAndSortedResultRequestDto input)
         {
-            var query = await _voucherRepository.GetQueryableAsync();
+            var query = (await _voucherRepository.WithDetailsAsync(v => v.Transfer));
 
             var vouchers = query.Skip(input.SkipCount)
                 .Take(input.MaxResultCount)
@@ -42,7 +42,14 @@ namespace SiahaVoyages.App
 
         public async Task<VoucherDto> CreateAsync(CreateVoucherDto input)
         {
-            var voucher = ObjectMapper.Map<CreateVoucherDto, Voucher>(input);
+            var voucher = (await _voucherRepository.GetQueryableAsync())
+                .Where(v => v.TransferId == input.TransferId)
+                .FirstOrDefault();
+            if (voucher != null)
+            {
+                await _voucherRepository.DeleteAsync(voucher.Id);
+            }
+            voucher = ObjectMapper.Map<CreateVoucherDto, Voucher>(input);
 
             var insertedVoucher = await _voucherRepository.InsertAsync(voucher);
 

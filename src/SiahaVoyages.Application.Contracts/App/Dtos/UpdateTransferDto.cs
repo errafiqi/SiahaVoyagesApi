@@ -1,6 +1,5 @@
 ﻿using SiahaVoyages.App.Enums;
 using System;
-using System.Collections.Generic;
 
 namespace SiahaVoyages.App.Dtos
 {
@@ -16,13 +15,17 @@ namespace SiahaVoyages.App.Dtos
         {
             get
             {
-                string names = "";
-                foreach (var name in PassengersNames)
+                if (PassengersNames != null)
                 {
-                    names += name + ";";
-                    names = name.Trim(';');
+                    string names = "";
+                    foreach (var name in PassengersNames)
+                    {
+                        names += name + ";";
+                    }
+                    names = names.Trim(';');
+                    return names;
                 }
-                return names;
+                return "";
             }
         }
 
@@ -56,6 +59,6 @@ namespace SiahaVoyages.App.Dtos
 
         public TransferStateEnum State { get; set; }
 
-        public Guid DriverId { get; set; }
+        public Guid? DriverId { get; set; }
     }
 }

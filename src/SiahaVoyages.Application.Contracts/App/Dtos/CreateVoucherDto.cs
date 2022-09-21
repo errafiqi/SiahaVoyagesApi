@@ -6,6 +6,8 @@ namespace SiahaVoyages.App.Dtos
     {
         public Guid TransferId { get; set; }
 
-        public byte[] File { get; set; }
+        public DateTime Date { get; set; }
+
+        public string Reference { get; set; }
     }
 }

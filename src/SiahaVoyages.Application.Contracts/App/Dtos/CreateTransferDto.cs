@@ -20,8 +20,8 @@ namespace SiahaVoyages.App.Dtos
                     foreach (var name in PassengersNames)
                     {
                         names += name + ";";
-                        names = name.Trim(';');
                     }
+                    names = names.Trim(';');
                     return names;
                 }
                 return "";
@@ -58,6 +58,6 @@ namespace SiahaVoyages.App.Dtos
 
         public TransferStateEnum State { get; set; }
 
-        public Guid DriverId { get; set; }
+        public Guid? DriverId { get; set; }
     }
 }

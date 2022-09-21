@@ -67,6 +67,9 @@ namespace SiahaVoyages.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<string>("Logo")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("RC")
                         .HasColumnType("nvarchar(max)");
 
@@ -83,7 +86,7 @@ namespace SiahaVoyages.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("App_Client");
+                    b.ToTable("App_Client", (string)null);
                 });
 
             modelBuilder.Entity("SiahaVoyages.App.Driver", b =>
@@ -130,7 +133,7 @@ namespace SiahaVoyages.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("App_Driver");
+                    b.ToTable("App_Driver", (string)null);
                 });
 
             modelBuilder.Entity("SiahaVoyages.App.Invoice", b =>
@@ -152,6 +155,9 @@ namespace SiahaVoyages.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("CreatorId");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("ExtraProperties")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
@@ -167,6 +173,9 @@ namespace SiahaVoyages.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<string>("Reference")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("TransferId")
                         .HasColumnType("uniqueidentifier");
 
@@ -174,7 +183,7 @@ namespace SiahaVoyages.Migrations
 
                     b.HasIndex("TransferId");
 
-                    b.ToTable("App_Invoice");
+                    b.ToTable("App_Invoice", (string)null);
                 });
 
             modelBuilder.Entity("SiahaVoyages.App.Transfer", b =>
@@ -268,7 +277,7 @@ namespace SiahaVoyages.Migrations
 
                     b.HasIndex("DriverId");
 
-                    b.ToTable("App_Transfert");
+                    b.ToTable("App_Transfert", (string)null);
                 });
 
             modelBuilder.Entity("SiahaVoyages.App.Voucher", b =>
@@ -290,6 +299,9 @@ namespace SiahaVoyages.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("CreatorId");
 
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("ExtraProperties")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("ExtraProperties");
@@ -305,6 +317,9 @@ namespace SiahaVoyages.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
 
+                    b.Property<string>("Reference")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("TransferId")
                         .HasColumnType("uniqueidentifier");
 
@@ -312,7 +327,7 @@ namespace SiahaVoyages.Migrations
 
                     b.HasIndex("TransferId");
 
-                    b.ToTable("App_Bon");
+                    b.ToTable("App_Bon", (string)null);
                 });
 
             modelBuilder.Entity("Volo.Abp.AuditLogging.AuditLog", b =>

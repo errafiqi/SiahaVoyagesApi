@@ -8,6 +8,7 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
 using Volo.Abp.Identity;
 using Volo.Abp.ObjectMapping;
+using Volo.Abp.Threading;
 using Volo.Abp.Users;
 
 namespace SiahaVoyages.App
@@ -22,13 +23,20 @@ namespace SiahaVoyages.App
 
         IRepository<IdentityRole, Guid> _roleRepository;
 
+        ICurrentUser _currentUser;
+
+        IdentityUserManager UserManager { get; }
+
         public ClientAppService(IRepository<Client, Guid> ClientRepository, IAccountAppService accountAppService,
-            IRepository<IdentityUser, Guid> userRepository, IRepository<IdentityRole, Guid> roleRepository)
+            IRepository<IdentityUser, Guid> userRepository, IRepository<IdentityRole, Guid> roleRepository,
+            IdentityUserManager userManager, ICurrentUser currentUser)
         {
             _clientRepository = ClientRepository;
             _accountAppService = accountAppService;
             _userRepository = userRepository;
             _roleRepository = roleRepository;
+            UserManager = userManager;
+            _currentUser = currentUser;
         }
 
         public async Task<ClientDto> GetAsync(Guid id)
@@ -83,18 +91,63 @@ namespace SiahaVoyages.App
             return ObjectMapper.Map<Client, ClientDto>(insertedClient);
         }
 
-        public async Task<ClientDto> UpdateAsync(UpdateClientDto input)
+        public async Task<ClientDto> UpdateAsync(Guid ClientId, UpdateClientDto input)
         {
-            var client = ObjectMapper.Map<UpdateClientDto, Client>(input);
+            var client = (await _clientRepository.WithDetailsAsync(d => d.User))
+                .FirstOrDefault(d => d.Id == ClientId);
 
-            var updatedClient = await _clientRepository.UpdateAsync(client);
+            client.User.Name = input.Name;
+            client.User.Surname = input.Surname;
+            client.User.SetPhoneNumber(input.PhoneNumber ?? "", true);
+            client.Adresse = input.Adresse;
+            client.ICE = input.ICE;
+            client.IF = input.IF;
+            client.TP = input.TP;
+            client.RC = input.RC;
+            client.RIB = input.RIB;
+            client.Contact = input.Contact;
+            client = await _clientRepository.UpdateAsync(client);
 
-            return ObjectMapper.Map<Client, ClientDto>(updatedClient);
+            var user = await _userRepository.GetAsync(u => u.Id == client.UserId);
+
+            var changeEmailToken = await UserManager.GenerateChangeEmailTokenAsync(user, input.Email);
+
+            await UserManager.ChangeEmailAsync(user, input.Email, changeEmailToken);
+            await UserManager.ConfirmEmailAsync(user, changeEmailToken);
+            await UserManager.SetEmailAsync(user, input.Email);
+
+            await UserManager.SetUserNameAsync(user, input.UserName);
+            if (!string.IsNullOrEmpty(input.Password))
+            {
+                await EditPassword(ClientId, input.Password);
+            }
+
+            return ObjectMapper.Map<Client, ClientDto>(client);
         }
 
         public async Task DeleteAsync(Guid id)
         {
             await _clientRepository.DeleteAsync(id);
+        }
+
+        public async Task<ClientDto> EditPassword(Guid clientId, string newPassword)
+        {
+            var userId = _currentUser.Id.Value;
+            var user = (await _userRepository.WithDetailsAsync()).FirstOrDefault(u => u.Id == userId);
+
+            var resetToken = await UserManager.GeneratePasswordResetTokenAsync(user);
+
+            await UserManager.ResetPasswordAsync(user, resetToken, newPassword);
+
+            var client = await _clientRepository.GetAsync(d => d.Id == clientId);
+
+            return ObjectMapper.Map<Client, ClientDto>(client);
+        }
+
+        public async Task ChangeLogo(ChangeLogoDto input)
+        {
+            var client = await _clientRepository.GetAsync(input.clientId);
+            client.Logo = input.base64Image;
         }
     }
 }
