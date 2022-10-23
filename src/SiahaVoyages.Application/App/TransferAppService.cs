@@ -90,6 +90,7 @@ namespace SiahaVoyages.App
             transfer.Passengers = input.PassengersNamesString;
             transfer.PassengersPhone = input.PassengersPhone;
             transfer.FMNO = input.FMNO;
+            transfer.ChargeCode = input.ChargeCode;
             transfer.PickupDate = input.PickupDate;
             transfer.PickupPoint = input.PickupPoint;
             transfer.DeliveryDate = input.DeliveryDate;

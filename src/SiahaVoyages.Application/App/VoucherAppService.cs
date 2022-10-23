@@ -12,9 +12,15 @@ namespace SiahaVoyages.App
     {
         IRepository<Voucher, Guid> _voucherRepository;
 
-        public VoucherAppService(IRepository<Voucher, Guid> VoucherRepository)
+        ITransferAppService _transferAppService;
+
+        IReportGeneratorAppService _reportGeneratorAppService;
+
+        public VoucherAppService(IRepository<Voucher, Guid> VoucherRepository, IReportGeneratorAppService reportGeneratorAppService, ITransferAppService transferAppService)
         {
             _voucherRepository = VoucherRepository;
+            _reportGeneratorAppService = reportGeneratorAppService;
+            _transferAppService = transferAppService;
         }
 
         public async Task<VoucherDto> GetAsync(Guid id)
@@ -49,7 +55,20 @@ namespace SiahaVoyages.App
             {
                 await _voucherRepository.DeleteAsync(voucher.Id);
             }
+
             voucher = ObjectMapper.Map<CreateVoucherDto, Voucher>(input);
+
+            voucher.TransferId = input.TransferId;
+
+            var transfer = await _transferAppService.GetAsync(input.TransferId);
+            var voucherDto = new VoucherDto
+            {
+                Reference = input.Reference,
+                Date = input.Date,
+                Transfer = transfer
+            };
+
+            voucher.File = _reportGeneratorAppService.GetByteDataVoucher(voucherDto);
 
             var insertedVoucher = await _voucherRepository.InsertAsync(voucher);
 

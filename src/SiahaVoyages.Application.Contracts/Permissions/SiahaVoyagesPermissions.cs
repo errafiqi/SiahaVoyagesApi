@@ -5,5 +5,7 @@ public static class SiahaVoyagesPermissions
     public const string GroupName = "SiahaVoyages";
 
     //Add your own permission names. Example:
-    //public const string MyPermission1 = GroupName + ".MyPermission1";
+    public const string IsClient = GroupName + ".IsClient";
+    public const string IsBackOffice = GroupName + ".IsBackOffice";
+    public const string IsAdmin = GroupName + ".IsAdmin";
 }

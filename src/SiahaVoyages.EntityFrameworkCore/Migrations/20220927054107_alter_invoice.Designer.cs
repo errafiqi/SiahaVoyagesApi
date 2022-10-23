@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SiahaVoyages.EntityFrameworkCore;
 using Volo.Abp.EntityFrameworkCore;
@@ -12,9 +13,10 @@ using Volo.Abp.EntityFrameworkCore;
 namespace SiahaVoyages.Migrations
 {
     [DbContext(typeof(SiahaVoyagesDbContext))]
-    partial class SiahaVoyagesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220927054107_alter_invoice")]
+    partial class alter_invoice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,9 +177,6 @@ namespace SiahaVoyages.Migrations
                     b.Property<Guid?>("LastModifierId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("LastModifierId");
-
-                    b.Property<DateTime>("Mois")
-                        .HasColumnType("datetime2");
 
                     b.Property<float>("Prix")
                         .HasColumnType("real");

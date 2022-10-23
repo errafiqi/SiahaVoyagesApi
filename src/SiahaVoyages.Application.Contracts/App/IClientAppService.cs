@@ -10,6 +10,8 @@ namespace SiahaVoyages.App
     {
         Task<ClientDto> GetAsync(Guid id);
 
+        Task<ClientDto> GetWithUserIdAsync(Guid id);
+
         Task<PagedResultDto<ClientDto>> GetListAsync(GetClientListDto input);
 
         Task<ClientDto> CreateAsync(CreateClientDto input);

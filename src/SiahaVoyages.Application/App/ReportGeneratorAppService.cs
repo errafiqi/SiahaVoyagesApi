@@ -3,7 +3,9 @@ using DinkToPdf.Contracts;
 using SiahaVoyages.App.Dtos;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
+using Humanizer;
 
 namespace SiahaVoyages.App
 {
@@ -134,7 +136,7 @@ namespace SiahaVoyages.App
           }
         
         .footerBon {
-          position: fixed;
+          position: absolute;
           bottom:15px;
           left:15px;
           right:15px;
@@ -148,7 +150,7 @@ namespace SiahaVoyages.App
       
 </style>
 </head>
-<body>
+<body style='min-height: 1200px;'>
   <div class='headerBon'>
 	  <div class='divImg'>
 	  	<img src='");
@@ -156,37 +158,78 @@ namespace SiahaVoyages.App
 			sb.Append(@"'>
     </div>
 	  <div class='divInfosBon'>
-	  	<p>Bon N° <span class='content'> @[REF-BON]</span></p>
-	  	<p class='pDate pDateEmission'>Date d’émission&nbsp; : <span class='content'>@[DATE-BON]</span> </p>
+	  	<p>Bon N° <span class='content'> ");
+			sb.Append(voucher.Reference);
+			sb.Append(@"</span></p>
+	  	<p class='pDate pDateEmission'>Date d’émission&nbsp; : <span class='content'>");
+			sb.Append(voucher.Date.Date.ToString("dd/MM/yyyy"));
+			sb.Append(@"</span> </p>
 	  </div>
   </div>
   <div class='bodyBon'>
     <table class='bonDetails'>
       <tr>
-        <td class='full-width'>Nom Chauffeur : <span class='content'>@[DRIVER-FULLNAME]</span></td>
+        <td class='full-width'>Nom Chauffeur : <span class='content'>");
+			sb.Append(voucher.Transfer.Driver == null ? "" : voucher.Transfer.Driver.FullName);
+			sb.Append(@"</span></td>
       </tr>
       <tr>
-        <td class='full-width'>Nom Passager : <span class='content'>@[PASSENGER-FULLNAME]</span></td>
+        <td class='full-width'>Nom Passager : <span class='content'>");
+            if (voucher.Transfer.PassengersNames != null)
+            {
+                bool first = true;
+                foreach (var pass in voucher.Transfer.PassengersNames)
+                {
+                    if (!first)
+                    {
+                        sb.Append(" - ");
+                        first = false;
+                    }
+                    sb.Append(pass);
+                }
+            }
+			sb.Append(@"</span></td>
       </tr>
       <tr>
-        <td class='full-width'>Charge Code : <span class='content'>@[CHARGE-CODE]</span></td>
+        <td class='full-width'>Charge Code : <span class='content'>");
+			sb.Append(voucher.Transfer.ChargeCode);
+			sb.Append(@"</span></td>
       </tr>
       <tr>
-        <td class='full-width'>FMNO Passager : <span class='content'>@[FMNO-PASSENGER]</span></td>
+        <td class='full-width'>FMNO Passager : <span class='content'>");
+			sb.Append(voucher.Transfer.FMNO);
+			sb.Append(@"</span></td>
       </tr>
       <tr>
-        <td class='full-width'>Itinéraire : De <span class='content'>@[POINT-FROM]</span> À <span class='content'>@[POINT-TO]</span></td>
+        <td class='full-width'>Itinéraire : De <span class='content'>");
+			sb.Append(voucher.Transfer.From);
+			sb.Append(@"</span> À <span class='content'>");
+			sb.Append(voucher.Transfer.To);
+			sb.Append(@"</span></td>
       </tr>
       <tr class='double-row'>
-        <td class='date'>Lieu de départ : <span class='content'>@[POINT-FROM]</span></td>
-        <td class='hour'>Heure :  <span class='content'>@[HOUR-FROM]</span></td>
+        <td class='date'>Lieu de départ : <span class='content'>");
+			sb.Append(voucher.Transfer.PickupPoint);
+			sb.Append(@"</span></td>
+        <td class='hour'>Heure :  <span class='content'>");
+			sb.Append(voucher.Transfer.PickupDate.ToShortTimeString());
+			sb.Append(@"</span></td>
       </tr>
       <tr class='double-row'>
-        <td class='date'>Lieu d'arrivée : <span class='content'>@[POINT-TO]</span></td>
-        <td class='hour'>Heure :  <span class='content'>@[HOUR-TO]</span></td>
+        <td class='date'>Lieu d'arrivée : <span class='content'><");
+			sb.Append(voucher.Transfer.DeliveryPoint);
+			sb.Append(@"/span></td>
+        <td class='hour'>Heure :  <span class='content'>");
+            if (voucher.Transfer.DeliveryDate != null && voucher.Transfer.DeliveryDate.HasValue)
+            {
+                sb.Append(voucher.Transfer.DeliveryDate.Value.ToShortTimeString());
+            }
+			sb.Append(@"</span></td>
       </tr>
       <tr>
-        <td class='full-width'>Prix :  <span class='content'>@[PRICE]</span></td>
+        <td class='full-width'>Prix :  <span class='content'>");
+			sb.Append(voucher.Transfer.Rate);
+			sb.Append(@" MAD</span></td>
       </tr>
       <tr style='padding-top:10px;'>
         <td class='date'></td>
@@ -335,7 +378,7 @@ namespace SiahaVoyages.App
           }
         
         .footerBon {
-          position: fixed;
+          position: absolute;
           bottom:0px;
           left:0px;
           right:0px;
@@ -457,7 +500,7 @@ namespace SiahaVoyages.App
       
 </style>
 </head>
-<body>
+<body style='min-height: 1200px;'>
   <div class='headerBon'>
 	  <div class='divImg'>
         <img src='");
@@ -465,8 +508,12 @@ namespace SiahaVoyages.App
 			sb.Append(@"'>
 	  </div>
 	  <div class='divInfosBon'>
-	  	<p>Réf. Facture <span class='content'> @[REF-FACTURE]</span></p>
-	  	<p class='pDate pDateEmission'>Date d’émission&nbsp; : <span class='content'>@[DATE-BON]</span> </p>
+	  	<p>Réf. Facture <span class='content'> ");
+			sb.Append(invoice.Reference);
+			sb.Append(@"</span></p>
+	  	<p class='pDate pDateEmission'>Date d’émission&nbsp; : <span class='content'>");
+			sb.Append(invoice.Date.Date.ToString("dd/MM/yyyy"));
+			sb.Append(@"</span> </p>
 	  </div>
   </div>
   <div class='cordonneesFacture'>
@@ -484,11 +531,17 @@ namespace SiahaVoyages.App
     <div class='divDe'>
       <div class='divDeContent'>
         <p class='pPourDe'>À :</p>
-        <p class='raison-sociale'>@[CLIENT-RAISON-SOCIALE]</p>
-        <p class='adresse'>@[CLIENT-ADRESSE]</p>
-        <p class='ville'>@[CLIENT-CITY]</p>
-        <p class='pays'>@CLIENT-COUNTRY]</p>
-        <p class='ice'>@CLIENT-ICE]</p>
+        <p class='raison-sociale'>");
+			sb.Append(invoice.Client.FullName);
+			sb.Append(@"</p>
+        <p class='adresse'>");
+			sb.Append(invoice.Client.Adresse);
+			sb.Append(@"</p>
+        <p class='ville'>Casablanca</p>
+        <p class='pays'>Maroc</p>
+        <p class='ice'>");
+			sb.Append(invoice.Client.ICE);
+			sb.Append(@"</p>
       </div>
     </div>
 
@@ -509,30 +562,55 @@ namespace SiahaVoyages.App
         
         <tr>
           <td>
-            <p>Période : <span class='content'>@[MIN-PICKUP]</span>au <span class='content'>@[MAX-PICKUP]</span></p>
-            <p>Nombre de missions : <span class='content'>@[NBR-MISSIONS] </span></p>
+            <p>Période : <span class='content'>");
+            if (invoice.Transfers != null && invoice.Transfers.Items != null && invoice.Transfers.Items.Any())
+            {
+                sb.Append(invoice.Transfers.Items.MinBy(t => t.PickupDate).PickupDate.ToString("dd/MM/yyyy"));
+            }
+			sb.Append(@"</span>au <span class='content'>");
+            if (invoice.Transfers != null && invoice.Transfers.Items != null && invoice.Transfers.Items.Any())
+            {
+                sb.Append(invoice.Transfers.Items.MaxBy(t => t.PickupDate).PickupDate.ToString("dd/MM/yyyy"));
+            }
+			sb.Append(@"</span></p>
+            <p>Nombre de missions : <span class='content'>");
+            if (invoice.Transfers != null && invoice.Transfers.Items != null && invoice.Transfers.Items.Any())
+            {
+                sb.Append(invoice.Transfers.Items.Count());
+            }
+			sb.Append(@" </span></p>
           </td>
-          <td><span class='content'>@[TOTAL-MOIS]</span></td>
+          <td><span class='content'>");
+			sb.Append(invoice.Prix);
+			sb.Append(@" MAD</span></td>
         </tr>
       
       </tbody>
       <tfoot>
         <tr>
           <td style='text-align:right !important;'><span class='content'>Total HT</span></td>
-          <td>@[TOTAL-MOIS]</td>
+          <td>");
+			sb.Append((int)(invoice.Prix / 1.14));
+			sb.Append(@" MAD</td>
         </tr>
         <tr>
           <td style='text-align:right !important;'><span class='content'>Montant TVA (14%)</span></td>
-          <td>@[TOTAL-TVA]</td>
+          <td>");
+			sb.Append((int)(invoice.Prix * 0.14 / 1.14));
+			sb.Append(@" MAD</td>
         </tr>
         <tr>
           <td style='text-align:right !important;'><span class='content'>Total TTC</span></td>
-          <td>@[TOTAL-TTC]</td>
+          <td>");
+			sb.Append(invoice.Prix);
+			sb.Append(@" MAD</td>
         </tr>
       </tfoot>
     </table>
     <div class='notice'>
-      <p>Arrêter la Facture à la somme de : @[SOMME-LETTER] MAD</p>
+      <p>Arrêter la Facture à la somme de : ");
+			sb.Append(((int)invoice.Prix).ToWords());
+			sb.Append(@" MAD</p>
     </div>
     <div class='warning footerBon'>
       <p>SIAHA Voyages - www.siahavoyage.com - Email : travel@siahavoyage.com - Capital: 100000DH </p>

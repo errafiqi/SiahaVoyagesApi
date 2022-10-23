@@ -7,13 +7,17 @@ namespace SiahaVoyages.App
     [Table(SiahaVoyagesConsts.DbTablePrefix + "Invoice")]
     public class Invoice : AuditedAggregateRoot<Guid>
     {
-        [ForeignKey("TransferId")]
-        public Guid TransferId { get; set; }
-        public Transfer Transfer { get; set; }
+        [ForeignKey("ClientId")]
+        public Guid ClientId { get; set; }
+        public Client Client { get; set; }
 
         public DateTime Date { get; set; }
 
         public string Reference { get; set; }
+
+        public DateTime Mois { get; set; }
+
+        public float Prix { get; set; }
 
         public byte[] File { get; set; }
     }

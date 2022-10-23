@@ -1,10 +1,12 @@
 ﻿using SiahaVoyages.App.Dtos;
+using SiahaVoyages.App.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.ObjectMapping;
 
 namespace SiahaVoyages.App
 {
@@ -12,20 +14,32 @@ namespace SiahaVoyages.App
     {
         IRepository<Invoice, Guid> _invoiceRepository;
 
-        public InvoiceAppService(IRepository<Invoice, Guid> InvoiceRepository)
+        IRepository<Transfer, Guid> _transferRepository;
+
+        IRepository<Client, Guid> _clientRepository;
+
+        IReportGeneratorAppService _reportGeneratorAppService;
+
+        public InvoiceAppService(IRepository<Invoice, Guid> InvoiceRepository, IRepository<Transfer, Guid> transferRepository
+            , IRepository<Client, Guid> clientRepository, IReportGeneratorAppService reportGeneratorAppService)
         {
             _invoiceRepository = InvoiceRepository;
+            _transferRepository = transferRepository;
+            _clientRepository = clientRepository;
+            _reportGeneratorAppService = reportGeneratorAppService;
         }
 
         public async Task<InvoiceDto> GetAsync(Guid id)
         {
-            var invoice = await _invoiceRepository.GetAsync(id);
+            var invoice = (await _invoiceRepository.WithDetailsAsync(i => i.Client))
+                .Where(v => v.Id == id)
+                .FirstOrDefault();
             return ObjectMapper.Map<Invoice, InvoiceDto>(invoice);
         }
 
         public async Task<PagedResultDto<InvoiceDto>> GetListAsync(PagedAndSortedResultRequestDto input)
         {
-            var query = (await _invoiceRepository.WithDetailsAsync(i => i.Transfer));
+            var query = (await _invoiceRepository.WithDetailsAsync(i => i.Client));
 
             var invoices = query.Skip(input.SkipCount)
                 .Take(input.MaxResultCount)
@@ -42,18 +56,55 @@ namespace SiahaVoyages.App
 
         public async Task<InvoiceDto> CreateAsync(CreateInvoiceDto input)
         {
-            var invoice = (await _invoiceRepository.GetQueryableAsync())
-                .Where(i => i.TransferId == input.TransferId)
-                .FirstOrDefault();
-            if (invoice != null)
+            try
             {
-                await _invoiceRepository.DeleteAsync(invoice.Id);
+                input.Mois = input.Mois.AddDays(1);
+                var invoice = (await _invoiceRepository.GetQueryableAsync())
+                    .Where(i => i.ClientId == input.ClientId && i.Mois.CompareTo(input.Mois) == 0)
+                    .FirstOrDefault();
+                if (invoice != null)
+                {
+                    await _invoiceRepository.DeleteAsync(invoice.Id);
+                }
+                invoice = ObjectMapper.Map<CreateInvoiceDto, Invoice>(input);
+
+                var transfers = (await _transferRepository.GetQueryableAsync())
+                    .Where(t => t.ClientId == input.ClientId && t.State == TransferStateEnum.Closed
+                        && t.PickupDate.Month == input.Mois.Month
+                        && t.PickupDate.Year == input.Mois.Year)
+                    .OrderBy(t => t.PickupDate)
+                    .ToList();
+                var transfersListResultDto = new ListResultDto<TransferDto>(ObjectMapper.Map<List<Transfer>, List<TransferDto>>(transfers));
+                float prix = 0;
+                if (transfersListResultDto.Items != null && transfersListResultDto.Items.Any())
+                {
+                    foreach (var transfer in transfersListResultDto.Items)
+                    {
+                        prix += transfer.Rate;
+                    }
+                }
+                var clientDto = ObjectMapper.Map<Client, ClientDto>(await _clientRepository.GetAsync(input.ClientId));
+
+                var invoiceDto = new InvoiceDto
+                {
+                    Client = clientDto,
+                    Date = input.Date,
+                    Reference = input.Reference,
+                    Mois = input.Mois,
+                    Transfers = transfersListResultDto,
+                    Prix = prix
+                };
+
+                invoice.Prix = prix;
+                invoice.File = _reportGeneratorAppService.GetByteDataInvoice(invoiceDto);
+                var insertedInvoice = await _invoiceRepository.InsertAsync(invoice);
+
+                return ObjectMapper.Map<Invoice, InvoiceDto>(insertedInvoice);
             }
-            invoice = ObjectMapper.Map<CreateInvoiceDto, Invoice>(input);
-
-            var insertedInvoice = await _invoiceRepository.InsertAsync(invoice);
-
-            return ObjectMapper.Map<Invoice, InvoiceDto>(insertedInvoice);
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         public async Task<InvoiceDto> UpdateAsync(UpdateInvoiceDto input)

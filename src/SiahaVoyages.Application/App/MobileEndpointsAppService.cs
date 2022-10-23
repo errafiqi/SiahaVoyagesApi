@@ -45,7 +45,6 @@ namespace SiahaVoyages.App
                 .FirstOrDefault(t => t.Id == MissionId);
 
             mission.State = TransferStateEnum.Rejected;
-            mission.Driver.Available = true;
             mission = await _transferRepository.UpdateAsync(mission);
 
             return ObjectMapper.Map<Transfer, TransferDto>(mission);

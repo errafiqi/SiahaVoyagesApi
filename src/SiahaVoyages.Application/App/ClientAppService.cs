@@ -45,6 +45,12 @@ namespace SiahaVoyages.App
             return ObjectMapper.Map<Client, ClientDto>(client);
         }
 
+        public async Task<ClientDto> GetWithUserIdAsync(Guid id)
+        {
+            var client = (await _clientRepository.WithDetailsAsync(c => c.User)).FirstOrDefault(c => c.UserId == id);
+            return ObjectMapper.Map<Client, ClientDto>(client);
+        }
+
         public async Task<PagedResultDto<ClientDto>> GetListAsync(GetClientListDto input)
         {
             var query = await _clientRepository.WithDetailsAsync(c => c.User);

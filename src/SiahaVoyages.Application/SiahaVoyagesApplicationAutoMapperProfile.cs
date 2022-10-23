@@ -34,5 +34,9 @@ public class SiahaVoyagesApplicationAutoMapperProfile : Profile
         CreateMap<Invoice, InvoiceDto>();
         CreateMap<CreateInvoiceDto, Invoice>();
         CreateMap<UpdateInvoiceDto, Invoice>();
+
+
+        CreateMap<Message, MessageDto>();
+        CreateMap<CreateUpdateMessageDto, Message>();
     }
 }
