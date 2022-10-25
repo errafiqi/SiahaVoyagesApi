@@ -11,8 +11,6 @@ namespace SiahaVoyages.App.Dtos
 
         public Guid? OriginMessageId { get; set; }
 
-        public Guid SenderId { get; set; }
-
-        public Guid RecipientId { get; set; }
+        public IdentityUserDto[] Recipients { get; set; }
     }
 }

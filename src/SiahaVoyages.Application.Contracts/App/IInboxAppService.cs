@@ -1,13 +1,20 @@
 ﻿using SiahaVoyages.App.Dtos;
 using System;
 using System.Threading.Tasks;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
+using Volo.Abp.Identity;
 
 namespace SiahaVoyages.App
 {
     public interface IInboxAppService : IApplicationService
     {
-        Task<MessageDto> CreateAsync(CreateUpdateMessageDto input);
+
+        Task SendMessageAsync(CreateUpdateMessageDto input);
+
+        Task<ListResultDto<IdentityUserDto>> GetBackOfficeUsersAsync();
+
+        Task<ListResultDto<IdentityUserDto>> GetClientUsersAsync();
 
         Task<MessageDto> MarkAsync(Guid id);
 

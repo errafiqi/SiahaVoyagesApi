@@ -3,31 +3,73 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Identity;
 
 namespace SiahaVoyages.App
 {
     public class InboxAppService : SiahaVoyagesAppService, IInboxAppService
     {
         private readonly IRepository<Message, Guid> _messageRepository;
+        private readonly IRepository<IdentityUser, Guid> _userRepository;
+        private readonly IRepository<IdentityRole, Guid> _roleRepository;
 
-        public InboxAppService(IRepository<Message, Guid> messageRepository)
+        IdentityUserManager UserManager { get; }
+
+
+        public InboxAppService(IRepository<Message, Guid> messageRepository,
+            IRepository<IdentityUser, Guid> userRepository,
+            IRepository<IdentityRole, Guid> roleRepository,
+            IdentityUserManager userManager)
         {
             _messageRepository = messageRepository;
+            _userRepository = userRepository;
+            _roleRepository = roleRepository;
+            UserManager = userManager;
         }
 
-        public async Task<MessageDto> CreateAsync(CreateUpdateMessageDto input)
+        public async Task SendMessageAsync(CreateUpdateMessageDto input)
         {
-            try
+            var message = ObjectMapper.Map<CreateUpdateMessageDto, Message>(input);
+            foreach (var recipient in input.Recipients)
             {
-                var message = ObjectMapper.Map<CreateUpdateMessageDto, Message>(input);
-                var result = await _messageRepository.InsertAsync(message);
-                return ObjectMapper.Map<Message, MessageDto>(result);
+                message.RecipientId = recipient.Id;
+                message.SenderId = CurrentUser.Id;
+                await _messageRepository.InsertAsync(message);
             }
-            catch (Exception ex)
+        }
+
+        public async Task<ListResultDto<IdentityUserDto>> GetBackOfficeUsersAsync()
+        {
+            var roleId = (await _roleRepository.GetAsync(r => r.Name.Equals("office"))).Id;
+            var users = (await _userRepository.WithDetailsAsync(u => u.Roles)).ToList();
+            var officeUsers = new List<IdentityUser>();
+            foreach (var user in users)
             {
-                throw ex;
+                if (user.Roles != null && user.Roles.Any() && user.IsInRole(roleId))
+                {
+                    officeUsers.Add(user);
+                }
             }
+            var readOnlyUsersList = ObjectMapper.Map<List<IdentityUser>, List<IdentityUserDto>>(officeUsers).AsReadOnly();
+            return new ListResultDto<IdentityUserDto>(readOnlyUsersList);
+        }
+
+        public async Task<ListResultDto<IdentityUserDto>> GetClientUsersAsync()
+        {
+            var roleId = (await _roleRepository.GetAsync(r => r.Name.Equals("client"))).Id;
+            var users = (await _userRepository.WithDetailsAsync(u => u.Roles)).ToList();
+            var clientUsers = new List<IdentityUser>();
+            foreach (var user in users)
+            {
+                if (user.Roles != null && user.Roles.Any() && user.IsInRole(roleId))
+                {
+                    clientUsers.Add(user);
+                }
+            }
+            var readOnlyUsersList = ObjectMapper.Map<List<IdentityUser>, List<IdentityUserDto>>(clientUsers).AsReadOnly();
+            return new ListResultDto<IdentityUserDto>(readOnlyUsersList);
         }
 
         public async Task<MessageDto> MarkAsync(Guid id)
@@ -283,12 +325,12 @@ namespace SiahaVoyages.App
                     .Where(m => m.RecipientId != CurrentUser.Id || !m.RecipientDeleted && !m.RecipientArchived && m.RecipientStared)
                     .Where(m => m.SenderId != CurrentUser.Id || !m.SenderDeleted && !m.SenderArchived && m.SenderStared)
                     .Count();
-            
+
             result.MarkedCount = messagesQuery.Where(m => m.RecipientId == CurrentUser.Id || m.SenderId == CurrentUser.Id)
                     .Where(m => m.RecipientId != CurrentUser.Id || !m.RecipientDeleted && !m.RecipientArchived && m.RecipientMarked)
                     .Where(m => m.SenderId != CurrentUser.Id || !m.SenderDeleted && !m.SenderArchived && m.SenderMarked)
                     .Count();
-            
+
             result.ArchivedCount = messagesQuery.Where(m => m.RecipientId == CurrentUser.Id || m.SenderId == CurrentUser.Id)
                     .Where(m => m.RecipientId != CurrentUser.Id || m.RecipientArchived)
                     .Where(m => m.SenderId != CurrentUser.Id || m.SenderArchived)
