@@ -58,6 +58,7 @@ public class SiahaVoyagesDbContext :
     public DbSet<Transfer> Transferts { get; set; }
     public DbSet<Voucher> Vouchers { get; set; }
     public DbSet<Invoice> Invoices { get; set; }
+    public DbSet<Message> Messages { get; set; }
 
     public SiahaVoyagesDbContext(DbContextOptions<SiahaVoyagesDbContext> options)
         : base(options)

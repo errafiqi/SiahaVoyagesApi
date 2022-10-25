@@ -192,6 +192,90 @@ namespace SiahaVoyages.Migrations
                     b.ToTable("App_Invoice");
                 });
 
+            modelBuilder.Entity("SiahaVoyages.App.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("ConcurrencyStamp");
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("CreationTime");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CreatorId");
+
+                    b.Property<string>("ExtraProperties")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("ExtraProperties");
+
+                    b.Property<DateTime?>("LastModificationTime")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("LastModificationTime");
+
+                    b.Property<Guid?>("LastModifierId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("LastModifierId");
+
+                    b.Property<string>("MessageContent")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MessageSubject")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("OriginMessageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Read")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RecipientArchived")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RecipientDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("RecipientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("RecipientMarked")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("RecipientStared")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("SenderArchived")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("SenderDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("SenderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("SenderMarked")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("SenderStared")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OriginMessageId");
+
+                    b.HasIndex("RecipientId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("App_Message");
+                });
+
             modelBuilder.Entity("SiahaVoyages.App.Transfer", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2291,6 +2375,27 @@ namespace SiahaVoyages.Migrations
                         .IsRequired();
 
                     b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("SiahaVoyages.App.Message", b =>
+                {
+                    b.HasOne("SiahaVoyages.App.Message", "OriginMessage")
+                        .WithMany()
+                        .HasForeignKey("OriginMessageId");
+
+                    b.HasOne("Volo.Abp.Identity.IdentityUser", "Recipient")
+                        .WithMany()
+                        .HasForeignKey("RecipientId");
+
+                    b.HasOne("Volo.Abp.Identity.IdentityUser", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId");
+
+                    b.Navigation("OriginMessage");
+
+                    b.Navigation("Recipient");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("SiahaVoyages.App.Transfer", b =>

@@ -1,21 +1,18 @@
 ﻿using System;
+using Volo.Abp.Identity;
 
 namespace SiahaVoyages.App.Dtos
 {
     public class CreateUpdateMessageDto
     {
-        public Guid SenderId { get; set; }
-
-        public Guid RecipientId { get; set; }
+        public string MessageSubject { get; set; }
 
         public string MessageContent { get; set; }
 
-        public bool Read { get; set; } = false;
+        public Guid? OriginMessageId { get; set; }
 
-        public bool Marked { get; set; } = false;
+        public Guid SenderId { get; set; }
 
-        public bool Stared { get; set; } = false;
-
-        public bool Archived { get; set; } = false;
+        public Guid RecipientId { get; set; }
     }
 }
