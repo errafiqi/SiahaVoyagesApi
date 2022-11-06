@@ -34,6 +34,14 @@ public class Program
                 .UseSerilog();
             await builder.AddApplicationAsync<SiahaVoyagesHttpApiHostModule>();
             var app = builder.Build();
+
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Error");
+                app.UseHsts();
+            }
+            app.UseHttpsRedirection();
+
             await app.InitializeApplicationAsync();
             await app.RunAsync();
             return 0;
