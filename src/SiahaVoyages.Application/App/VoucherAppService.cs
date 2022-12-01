@@ -14,12 +14,9 @@ namespace SiahaVoyages.App
 
         ITransferAppService _transferAppService;
 
-        IReportGeneratorAppService _reportGeneratorAppService;
-
-        public VoucherAppService(IRepository<Voucher, Guid> VoucherRepository, IReportGeneratorAppService reportGeneratorAppService, ITransferAppService transferAppService)
+        public VoucherAppService(IRepository<Voucher, Guid> VoucherRepository, ITransferAppService transferAppService)
         {
             _voucherRepository = VoucherRepository;
-            _reportGeneratorAppService = reportGeneratorAppService;
             _transferAppService = transferAppService;
         }
 
@@ -67,8 +64,6 @@ namespace SiahaVoyages.App
                 Date = input.Date,
                 Transfer = transfer
             };
-
-            voucher.File = _reportGeneratorAppService.GetByteDataVoucher(voucherDto);
 
             var insertedVoucher = await _voucherRepository.InsertAsync(voucher);
 

@@ -18,15 +18,12 @@ namespace SiahaVoyages.App
 
         IRepository<Client, Guid> _clientRepository;
 
-        IReportGeneratorAppService _reportGeneratorAppService;
-
         public InvoiceAppService(IRepository<Invoice, Guid> InvoiceRepository, IRepository<Transfer, Guid> transferRepository
             , IRepository<Client, Guid> clientRepository, IReportGeneratorAppService reportGeneratorAppService)
         {
             _invoiceRepository = InvoiceRepository;
             _transferRepository = transferRepository;
             _clientRepository = clientRepository;
-            _reportGeneratorAppService = reportGeneratorAppService;
         }
 
         public async Task<InvoiceDto> GetAsync(Guid id)
@@ -96,7 +93,6 @@ namespace SiahaVoyages.App
                 };
 
                 invoice.Prix = prix;
-                invoice.File = _reportGeneratorAppService.GetByteDataInvoice(invoiceDto);
                 var insertedInvoice = await _invoiceRepository.InsertAsync(invoice);
 
                 return ObjectMapper.Map<Invoice, InvoiceDto>(insertedInvoice);

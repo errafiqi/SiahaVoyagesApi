@@ -1,5 +1,5 @@
-﻿using DinkToPdf;
-using DinkToPdf.Contracts;
+﻿//using DinkToPdf;
+//using DinkToPdf.Contracts;
 using Localization.Resources.AbpUi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -29,7 +29,7 @@ public class SiahaVoyagesHttpApiModule : AbpModule
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         ConfigureLocalization();
-        context.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+        //context.Services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
     }
 
     private void ConfigureLocalization()

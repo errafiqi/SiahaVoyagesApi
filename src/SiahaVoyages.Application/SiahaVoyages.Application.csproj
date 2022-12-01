@@ -8,12 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="App\ReportGeneratorAppService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SiahaVoyages.Domain\SiahaVoyages.Domain.csproj" />
     <ProjectReference Include="..\SiahaVoyages.Application.Contracts\SiahaVoyages.Application.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DinkToPdf" Version="1.0.8" />
     <PackageReference Include="Humanizer.Core.fr" Version="2.14.1" />
     <PackageReference Include="Volo.Abp.Account.Application" Version="5.3.4" />
     <PackageReference Include="Volo.Abp.Identity.Application" Version="5.3.4" />
